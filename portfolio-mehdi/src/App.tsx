@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import EquiVisionCaseStudy from './EquiVisionCaseStudy'
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -34,11 +35,11 @@ const projects = [
     title: 'EquiVision AI',
     category: 'Projet de stage · IA & développement web',
     description:
-      'Prototype intelligent dédié à la gestion et à l’analyse de la santé équine. Il centralise les fiches des chevaux, les informations médicales et une prédiction indicative de leur état de santé.',
-    tags: ['Python', 'FastAPI', 'Scikit-learn', 'React', 'TypeScript', 'SQLite'],
+      'Plateforme de gestion de centre équestre : fiches des chevaux, suivi médical, calendrier et analyse automatique de l’état de santé. Un score de risque métier complète la prédiction du modèle.',
+    tags: ['Python', 'FastAPI', 'Scikit-learn', 'Random Forest', 'React', 'TypeScript', 'SQLite'],
     icon: BrainCircuit,
     accent: 'gold',
-    detail: 'Machine Learning · API REST · Interface web',
+    detail: 'Machine Learning · API REST · Score EquiRisk',
   },
   {
     number: '02',
@@ -66,28 +67,60 @@ const projects = [
 
 const skillGroups = [
   {
-    title: 'Intelligence artificielle',
-    caption: 'Apprentissage & modèles',
+    title: 'IA & data',
+    caption: 'Apprentissage & modélisation',
     icon: BrainCircuit,
-    skills: ['Machine Learning', 'Scikit-learn', 'PyTorch', 'CNN / AlexNet', 'Bases du Deep Learning'],
+    skills: ['Machine Learning', 'Random Forest', 'Scikit-learn', 'pandas', 'PyTorch', 'CNN / AlexNet', 'Deep learning (bases)'],
   },
   {
     title: 'Développement',
-    caption: 'Applications & API',
+    caption: 'Langages & applications',
     icon: Code2,
-    skills: ['Python', 'Java', 'C / C++', 'JavaScript', 'React & TypeScript', 'FastAPI', 'HTML / CSS'],
+    skills: ['Python', 'Java', 'C / C++', 'JavaScript', 'TypeScript', 'React', 'FastAPI', 'HTML / CSS', 'Bootstrap'],
   },
   {
-    title: 'Data & outils',
-    caption: 'Stockage & workflow',
+    title: 'Données & outils',
+    caption: 'Stockage & environnement',
     icon: Database,
-    skills: ['MySQL', 'SQLite', 'SQL', 'Git / GitHub', 'VS Code', 'Google Colab', 'Vite'],
+    skills: ['SQL', 'MySQL', 'SQLite', 'SQLAlchemy', 'Modélisation des données', 'Git / GitHub', 'Vite', 'Joblib', 'Google Colab', 'VS Code'],
   },
 ]
+
+function useScrollReveal() {
+  useEffect(() => {
+    const nodes = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'))
+    if (!('IntersectionObserver' in window)) {
+      nodes.forEach((node) => node.classList.add('is-visible'))
+      return
+    }
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        // Une saute de défilement (lien d'ancre, fin de page, restauration de position)
+        // ferait rester invisibles les éléments déjà dépassés : on les révèle aussi.
+        if (!entry.isIntersecting && entry.boundingClientRect.top > 0) continue
+        entry.target.classList.add('is-visible')
+        observer.unobserve(entry.target)
+      }
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 })
+    nodes.forEach((node) => observer.observe(node))
+    // Deuxième garde-fou : dans un contexte où l'observation ne répond jamais
+    // (aperçu en iframe, page masquée), rien ne doit rester masqué.
+    const watchdog = window.setTimeout(() => {
+      if (nodes.some((node) => node.classList.contains('is-visible'))) return
+      nodes.forEach((node) => node.classList.add('is-visible'))
+    }, 1500)
+    return () => {
+      window.clearTimeout(watchdog)
+      observer.disconnect()
+    }
+  }, [])
+}
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  useScrollReveal()
 
   const closeMenu = () => setMobileMenuOpen(false)
 
@@ -103,6 +136,7 @@ function App() {
 
   return (
     <div className="site-shell">
+      <a className="skip-link" href="#contenu">Aller au contenu principal</a>
       <div className="top-glow" aria-hidden="true" />
       <header className="site-header">
         <a className="brand" href="#accueil" onClick={closeMenu} aria-label="Mehdi El Hani, accueil">
@@ -123,14 +157,16 @@ function App() {
           <a href="#apropos" onClick={closeMenu}>À propos</a>
           <a href="#competences" onClick={closeMenu}>Compétences</a>
           <a href="#projets" onClick={closeMenu}>Projets</a>
+          <a href="#equivision" onClick={closeMenu}>EquiVision AI</a>
           <a href="#experience" onClick={closeMenu}>Parcours</a>
+          <a href={CV_PATH} download onClick={closeMenu}>CV</a>
           <a className="nav-contact" href="#contact" onClick={closeMenu}>Me contacter <ArrowUpRight size={15} /></a>
         </nav>
       </header>
 
-      <main>
+      <main id="contenu">
         <section className="hero section-wrap" id="accueil">
-          <div className="hero-copy">
+          <div className="hero-copy" data-reveal>
             <div className="eyebrow"><span className="eyebrow-dot" /> PORTFOLIO PERSONNEL <span className="eyebrow-line" /></div>
             <p className="hero-kicker">Étudiant ingénieur · Big Data & Intelligence Artificielle</p>
             <h1>Je transforme les données en <span className="gradient-text">solutions intelligentes.</span></h1>
@@ -148,7 +184,7 @@ function App() {
             </div>
           </div>
 
-          <div className="hero-visual" aria-label="Illustration graphique autour de l'intelligence artificielle">
+          <div className="hero-visual" data-reveal aria-label="Illustration graphique autour de l'intelligence artificielle">
             <div className="visual-grid" />
             <div className="visual-orbit orbit-one" />
             <div className="visual-orbit orbit-two" />
@@ -163,7 +199,7 @@ function App() {
         </section>
 
         <section className="intro-band" id="apropos">
-          <div className="section-wrap intro-grid">
+          <div className="section-wrap intro-grid" data-reveal>
             <div className="section-label"><span>01</span><span>À PROPOS</span></div>
             <div className="intro-content">
               <p className="section-overline">CURIEUX PAR NATURE, INGÉNIEUR EN DEVENIR</p>
@@ -177,7 +213,7 @@ function App() {
         </section>
 
         <section className="section-wrap skills-section" id="competences">
-          <div className="section-heading">
+          <div className="section-heading" data-reveal>
             <div><p className="section-overline">02 / BOÎTE À OUTILS</p><h2>Les outils pour <span className="serif-accent">donner vie</span> aux idées.</h2></div>
             <p className="heading-note">Des fondamentaux en informatique aux premiers modèles IA, voici les technologies que j’ai utilisées dans ma formation et mes projets.</p>
           </div>
@@ -185,7 +221,7 @@ function App() {
             {skillGroups.map((group, index) => {
               const Icon = group.icon
               return (
-                <article className={`skill-card skill-card-${index + 1}`} key={group.title}>
+                <article className={`skill-card skill-card-${index + 1}`} key={group.title} data-reveal>
                   <div className="skill-card-top"><div className="skill-icon"><Icon size={22} strokeWidth={1.7} /></div><span className="skill-number">0{index + 1}</span></div>
                   <p className="skill-caption">{group.caption}</p>
                   <h3>{group.title}</h3>
@@ -199,7 +235,7 @@ function App() {
 
         <section className="projects-section" id="projets">
           <div className="section-wrap">
-            <div className="section-heading projects-heading">
+            <div className="section-heading projects-heading" data-reveal>
               <div><p className="section-overline">03 / PROJETS SÉLECTIONNÉS</p><h2>Du concept au <span className="serif-accent">prototype.</span></h2></div>
               <p className="heading-note">Chaque projet est une occasion d’apprendre une technologie, de structurer une solution et de mieux comprendre le problème traité.</p>
             </div>
@@ -207,7 +243,7 @@ function App() {
               {projects.map((project) => {
                 const Icon = project.icon
                 return (
-                  <article className={`project-card project-${project.accent}`} key={project.number}>
+                  <article className={`project-card project-${project.accent}`} key={project.number} data-reveal>
                     <div className="project-visual">
                       <div className="project-visual-grid" />
                       <div className="project-orbit project-orbit-a" />
@@ -221,7 +257,7 @@ function App() {
                       <h3>{project.title}</h3>
                       <p>{project.description}</p>
                       <div className="project-tags">{project.tags.map((tag) => <span key={tag}>{tag}</span>)}</div>
-                      {project.number === '01' ? <a className="project-link" href="#contact">Parlons du projet <ArrowUpRight size={16} /></a> : <span className="project-academic"><Check size={14} /> Projet académique</span>}
+                      {project.number === '01' ? <a className="project-link" href="#equivision">Lire l’étude de cas <ArrowUpRight size={16} /></a> : <span className="project-academic"><Check size={14} /> Projet académique</span>}
                     </div>
                     <span className="project-side-number">{project.number}</span>
                   </article>
@@ -232,22 +268,24 @@ function App() {
           </div>
         </section>
 
+        <EquiVisionCaseStudy />
+
         <section className="section-wrap experience-section" id="experience">
-          <div className="section-heading">
-            <div><p className="section-overline">04 / PARCOURS</p><h2>Apprendre en <span className="serif-accent">pratiquant.</span></h2></div>
+          <div className="section-heading" data-reveal>
+            <div><p className="section-overline">05 / PARCOURS</p><h2>Apprendre en <span className="serif-accent">pratiquant.</span></h2></div>
             <p className="heading-note">Formation d’ingénieur et premières expériences en environnement professionnel.</p>
           </div>
           <div className="timeline">
-            <article className="timeline-item timeline-current">
+            <article className="timeline-item timeline-current" data-reveal>
               <div className="timeline-marker"><BriefcaseBusiness size={17} /></div>
               <div className="timeline-date">AOÛT 2026 <span>· 1 MOIS</span></div>
               <div className="timeline-main">
                 <div className="timeline-title-row"><div><h3>Stage — IDEVELOP SARL</h3><p className="timeline-subtitle">Rabat, Maroc · Projet EquiVision AI</p></div><span className="timeline-tag">EXPÉRIENCE RÉCENTE</span></div>
-                <p>Réalisation d’un prototype de gestion et d’analyse de la santé équine, avec un volet applicatif et une composante de prédiction basée sur le machine learning.</p>
-                <div className="timeline-tech"><span>Python</span><span>FastAPI</span><span>Scikit-learn</span><span>React</span><span>SQLite</span></div>
+                <p>Réalisation du prototype EquiVision AI : API FastAPI, persistance SQLAlchemy/SQLite, interface React et TypeScript, entraînement d’un classifieur Random Forest et conception du score de risque EquiRisk qui traduit la prédiction en recommandations.</p>
+                <div className="timeline-tech"><span>Python</span><span>FastAPI</span><span>Scikit-learn</span><span>SQLAlchemy</span><span>React</span><span>TypeScript</span><span>SQLite</span></div>
               </div>
             </article>
-            <article className="timeline-item">
+            <article className="timeline-item" data-reveal>
               <div className="timeline-marker"><BriefcaseBusiness size={17} /></div>
               <div className="timeline-date">JUILLET 2025 <span>· STAGE D’OBSERVATION</span></div>
               <div className="timeline-main">
@@ -256,7 +294,7 @@ function App() {
                 <p>Observation des procédures de maintenance informatique, participation à l’installation de systèmes Windows, découverte des pratiques de sauvegarde et de sécurité des données, et assistance à l’équipe IT dans ses tâches quotidiennes.</p>
               </div>
             </article>
-            <article className="timeline-item">
+            <article className="timeline-item" data-reveal>
               <div className="timeline-marker"><GraduationCap size={18} /></div>
               <div className="timeline-date">2022 — 2027 <span>· EN COURS</span></div>
               <div className="timeline-main">
@@ -270,8 +308,8 @@ function App() {
 
         <section className="extras-section">
           <div className="section-wrap extras-grid">
-            <div className="extra-block">
-              <div className="section-label"><span>05</span><span>LANGUES</span></div>
+            <div className="extra-block" data-reveal>
+              <div className="section-label"><span>06</span><span>LANGUES</span></div>
               <h3>Communiquer, apprendre, collaborer.</h3>
               <div className="language-list">
                 <div><span>Arabe</span><span className="language-level">Langue maternelle</span></div>
@@ -279,10 +317,10 @@ function App() {
                 <div><span>Anglais</span><span className="language-level">Intermédiaire</span></div>
               </div>
             </div>
-            <div className="extra-block extra-activities">
-              <div className="section-label"><span>06</span><span>EN DEHORS DU CODE</span></div>
+            <div className="extra-block extra-activities" data-reveal>
+              <div className="section-label"><span>07</span><span>EN DEHORS DU CODE</span></div>
               <h3>La discipline aussi se pratique.</h3>
-              <p>La pratique de l’équitation — notamment le saut d’obstacles — et du taekwondo m’apporte discipline, persévérance et goût du dépassement de soi.</p>
+              <p>Cavalier de saut d’obstacles, niveau Faris 3 (FRMSE), et ceinture noire de taekwondo. Les deux m’apportent rigueur, constance et goût du dépassement de soi.</p>
               <div className="activity-stamps"><span>ÉQUITATION <span>↗</span></span><span>TAEKWONDO <span>↗</span></span></div>
             </div>
           </div>
@@ -290,8 +328,8 @@ function App() {
 
         <section className="contact-section" id="contact">
           <div className="contact-noise" aria-hidden="true" />
-          <div className="section-wrap contact-inner">
-            <div className="section-overline">07 / ET MAINTENANT ?</div>
+          <div className="section-wrap contact-inner" data-reveal>
+            <div className="section-overline">08 / ET MAINTENANT ?</div>
             <h2>Une idée, un projet,<br /><span className="serif-accent">une opportunité.</span></h2>
             <p>Je suis ouvert aux échanges autour de la data, de l’intelligence artificielle et du développement logiciel.</p>
             <div className="contact-actions">
