@@ -1,3 +1,7 @@
+import { Download, FileText } from 'lucide-react'
+
+const REPORT_PATH = `${import.meta.env.BASE_URL}documents/rapport-equivision-ai.pdf`
+
 const statusBadges = {
   done: 'Disponible',
   wip: 'En cours de branchement',
@@ -130,7 +134,7 @@ const obstacles: { problem: string; solution: string }[] = [
 ]
 
 const limits: string[] = [
-  'Le jeu de données d’entraînement compte sept lignes. Le modèle apprend une séparation plausible entre les trois classes, rien de plus : aucune performance globale n’est revendiquée.',
+  'Le jeu de données d’entraînement compte sept lignes. L’évaluation rapporte une accuracy expérimentale de 0,50 (50 %), mesurée sur un seul tiers : le rapport conclut lui‑même qu’aucune fiabilité réelle ne peut en être déduite.',
   'SQLite et un seul processus : choix assumé pour un prototype, à remplacer pour un usage multi-utilisateurs réel.',
   'Les seuils du score EquiRisk sont issus de règles métier simples, pas d’un protocole vétérinaire validé.',
   'Les origines autorisées par le CORS sont ouvertes, à restreindre avant toute mise en production.',
@@ -316,6 +320,30 @@ export default function EquiVisionCaseStudy() {
                 <figcaption>{shot.caption}</figcaption>
               </figure>
             ))}
+          </div>
+        </div>
+
+        <div className="cs-block cs-report" data-reveal>
+          <div className="cs-report-card">
+            <div>
+              <h3 className="cs-block-title">Rapport de projet de fin d’études</h3>
+              <p className="cs-block-lede">
+                Consultez le rapport présentant les objectifs, la conception, l’architecture, les technologies, les
+                fonctionnalités et les perspectives d’évolution du prototype EquiVision AI.
+              </p>
+              <div className="cs-report-actions">
+                <a className="button button-primary button-large" href={REPORT_PATH} target="_blank" rel="noreferrer">
+                  <FileText size={16} /> Consulter le rapport
+                </a>
+                <a className="button button-ghost button-large" href={REPORT_PATH} download="Rapport-PFE-EquiVision-AI.pdf">
+                  <Download size={16} /> Télécharger le rapport PDF
+                </a>
+              </div>
+            </div>
+            <p className="cs-report-meta">
+              Rapport de fin d’études — Université Internationale de Rabat, Génie Informatique, spécialité Big Data &amp;
+              IA, année universitaire 2025‑2026 · PDF, 18 pages.
+            </p>
           </div>
         </div>
 
